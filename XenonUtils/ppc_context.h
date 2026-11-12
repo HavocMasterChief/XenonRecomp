@@ -27,7 +27,14 @@
 #define PPC_FUNC(x) void x(PPCContext& __restrict ctx, uint8_t* base)
 #define PPC_FUNC_IMPL(x) extern "C" PPC_FUNC(x)
 #define PPC_EXTERN_FUNC(x) extern PPC_FUNC(x)
+#if defined(_WIN32)
+// COFF "weak" symbols only resolve within one object file, so the aliases the
+// translator emits for each function would stay undefined across files.
+// Strong definitions work the same as long as nothing overrides them.
+#define PPC_WEAK_FUNC(x) __attribute__((noinline)) PPC_FUNC(x)
+#else
 #define PPC_WEAK_FUNC(x) __attribute__((weak,noinline)) PPC_FUNC(x)
+#endif
 
 #define PPC_FUNC_PROLOGUE() __builtin_assume(((size_t)base & 0x1F) == 0)
 
