@@ -609,7 +609,9 @@ bool Recompiler::Recompile(
     case PPC_INST_BCTR:
         if (switchTable != config.switchTables.end())
         {
-            println("\tswitch ({}.u64) {{", r(switchTable->second.r));
+            // Jump-table indices are 32-bit: the upper word can hold leftovers from
+            // 64-bit rotate-and-mask instructions (rlwinm with a wrapping mask).
+            println("\tswitch ({}.u32) {{", r(switchTable->second.r));
 
             // Report a broken jump table once, with what's needed to fix it in
             // the config: the function's start, its cases' reach, and where the
