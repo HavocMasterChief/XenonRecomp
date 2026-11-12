@@ -1,5 +1,6 @@
 #include "xex.h"
 #include "image.h"
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -180,7 +181,11 @@ Image Xex2LoadImage(const uint8_t* data, size_t dataSize)
                 imageSize += blocks[i].dataSize + blocks[i].zeroSize;
             }
 
-            result = std::make_unique<uint8_t[]>(imageSize);
+            // The image is security->imageSize bytes; the blocks can cover
+            // less, and the rest is zero (make_unique zero-fills arrays).
+            // Sizing the buffer to the blocks alone made callers that copy
+            // image.size bytes read past its end.
+            result = std::make_unique<uint8_t[]>(std::max<size_t>(imageSize, security->imageSize));
             auto* destData = result.get();
 
             for (size_t i = 0; i < numBlocks; i++)
