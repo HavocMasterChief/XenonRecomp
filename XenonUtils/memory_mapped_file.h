@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #if defined(_WIN32)
-#   include <Windows.h>
+#   include <windows.h> // lowercase: MinGW headers on case-sensitive file systems
 #else
 #   include <sys/mman.h>
 #endif
